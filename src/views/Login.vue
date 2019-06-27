@@ -8,11 +8,11 @@
         <el-col :xs="14" :sm="12" :md="10" :lg="8" :xl="6">
             <el-form ref="form" :model="form" class="login-form" label-position="top" label-width="80px">
                 <el-form-item label="用户名">
-                    <el-input v-model="form.username"></el-input>
+                    <el-input></el-input>
                 </el-form-item>
 
                 <el-form-item label="密码">
-                    <el-input v-model="form.password"></el-input>
+                    <el-input></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -25,18 +25,24 @@
 </template>
 <script>
 export default {
-    data() {
-        return {
-            form: {
-                username: "",
-                password: ""
-            }
-        };
+data() {
+    return {
+        form: {
+          name: '',
+          region: '',
+          date1: '',
+          date2: '',
+          delivery: false,
+          type: [],
+          resource: '',
+          desc: ''
+        }
+      }
     },
     methods: {
-        onSubmit() {
-            console.log("submit!");
-        }
+      onSubmit() {
+        console.log('submit!');
+      }
     }
 };
 </script>
