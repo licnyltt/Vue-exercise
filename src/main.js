@@ -12,6 +12,19 @@ import "./assets/css/index.css";
 // 3. 安装ElementUI
 Vue.use(ElementUI);
 
+router.beforeEach(  (to,from,next) => {
+  console.log(to,from)
+  if(to.path === "/login") {
+    return next()
+  } else {
+    if(localStorage.getItem("token")) {
+      next()
+    } else {
+      router.push("/login")
+    }
+  }
+})
+
 Vue.config.productionTip = false;
 
 new Vue({

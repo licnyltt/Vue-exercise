@@ -16,7 +16,7 @@
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="onSubmit">登录</el-button>
+                    <el-button type="primary" @click="submitForm('form')">登录</el-button>
                     <el-button @click="resetForm('form')">重置</el-button>
                 </el-form-item>
             </el-form>
@@ -24,6 +24,7 @@
     </el-row>
 </template>
 <script>
+import axios from "axios"
 export default {
 data() {
     return {
@@ -44,8 +45,25 @@ data() {
       }
     },
     methods: {
-      onSubmit() {
-        console.log('submit!');
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            // alert('submit!');
+            axios({
+                method: "post",
+                url: "http://localhost:8888/api/private/v1/login",
+                data:  this.form
+            }).then(({data:{data, meta}}) => {
+                if (meta.status == 200) { 
+                    localStorage.setItem("token", data.token)
+                    this.$router.push("/home")
+                }
+            })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
