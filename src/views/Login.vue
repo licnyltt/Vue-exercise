@@ -6,18 +6,18 @@
         <!-- el-col 布局组件 列组件 -->
         <!-- span 属性是用来设置当前列所占的格数的 -->
         <el-col :xs="14" :sm="12" :md="10" :lg="8" :xl="6">
-            <el-form ref="form" :model="form" class="login-form" label-position="top" label-width="80px">
-                <el-form-item label="用户名">
-                    <el-input></el-input>
+            <el-form ref="form" :model="form" :rules="rules" class="login-form" label-position="top" label-width="80px">
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="form.username"></el-input>
                 </el-form-item>
 
-                <el-form-item label="密码">
-                    <el-input></el-input>
+                <el-form-item label="密码" prop="password">
+                    <el-input v-model="form.password"></el-input>
                 </el-form-item>
 
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">登录</el-button>
-                    <el-button>重置</el-button>
+                    <el-button @click="resetForm('form')">重置</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -28,20 +28,27 @@ export default {
 data() {
     return {
         form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+          username: '',
+          password: '',
+        },
+        rules: {
+            username: [
+                { required: true, message: '请输入密码', trigger: 'blur' },
+                { min: 5, max: 12, message: '长度在 5 到 12 个字符', trigger: 'change' }
+            ],
+            password: [
+                { required: true, message: '请输入密码', trigger: 'blur' },
+                { min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: 'change' }
+            ]
         }
       }
     },
     methods: {
       onSubmit() {
         console.log('submit!');
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
       }
     }
 };
