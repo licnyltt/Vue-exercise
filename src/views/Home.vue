@@ -125,7 +125,6 @@ export default {
     text-align: center;
     color: #fff;
     font-size: 28px;
-
   }
 
   .el-header .row-bg .header-right {
