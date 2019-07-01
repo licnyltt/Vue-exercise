@@ -19,7 +19,7 @@
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password"></el-input>
+          <el-input v-model="form.password" show-password type="password"></el-input>
         </el-form-item>
 
         <el-form-item>
@@ -61,10 +61,9 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate(async valid => {
-        if (valid) {
-          // alert('submit!');
+    async submitForm(formName) {
+      try {
+        await this.$refs[formName].validate(async valid => {
           let {
             data: { data, meta }
           } = await this.$http({
@@ -72,23 +71,20 @@ export default {
             url: "login",
             data: this.form
           });
-
           if (meta.status == 200) {
             localStorage.setItem("token", data.token);
             this.$router.push("/home");
+          } else {
+            this.$message({
+              type: "error",
+              message: meta.msg,
+              duration: 1000
+            });
           }
-
-          // .then(({data:{data, meta}}) => {
-          //     if (meta.status == 200) {
-          //         localStorage.setItem("token", data.token)
-          //         this.$router.push("/home")
-          //     }
-          // })
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+        });
+      } catch (err) {
+        console.log("表单验证或ajax请求失败");
+      }
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();

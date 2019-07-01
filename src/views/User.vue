@@ -7,7 +7,12 @@
     </el-breadcrumb>
     <el-row :gutter="20">
       <el-col :span="6">
-        <el-input placeholder="请输入内容" class="input-with-select" v-model="keywords">
+        <el-input
+          placeholder="请输入内容"
+          class="input-with-select"
+          v-model="keywords"
+          @keyup.enter.native="search"
+        >
           <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
         </el-input>
       </el-col>
@@ -34,7 +39,13 @@
       <el-table-column label="操作">
         <template v-slot="{row}">
           <el-row>
-            <el-button type="primary" plain size="mini" icon="el-icon-edit"></el-button>
+            <el-button
+              type="primary"
+              plain
+              size="mini"
+              icon="el-icon-edit"
+              @click="revision(row.id)"
+            ></el-button>
             <el-button type="danger" plain size="mini" icon="el-icon-delete" @click="del(row.id)"></el-button>
             <el-button type="success" plain size="mini" icon="el-icon-check">分配角色</el-button>
           </el-row>
@@ -49,13 +60,14 @@
       :current-page="currentpage"
       @current-change="changePage"
     ></el-pagination>
+    <!-- 添加用户的模态框 -->
     <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
-      <el-form :model="form" ref="form" :rules="rules">
+      <el-form :model="form" ref="addform" :rules="rules">
         <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
           <el-input v-model="form.username" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" :label-width="formLabelWidth" prop="password">
-          <el-input v-model="form.password" autocomplete="off"></el-input>
+          <el-input v-model="form.password" autocomplete="off" show-password type="password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
           <el-input v-model="form.email" autocomplete="off"></el-input>
@@ -66,7 +78,25 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addUserConfirm('form')">确 定</el-button>
+        <el-button type="primary" @click="addUserConfirm('addform')">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!-- 修改用户的模态框 -->
+    <el-dialog title="修改用户" :visible.sync="dialogFormVisibleRevision">
+      <el-form :model="revisionform" ref="revisonform" :rules="revisionrules">
+        <el-form-item label="用户名" :label-width="formLabelWidth" prop="email">
+          <el-button type="info" plain disabled size="small">{{revisionform.username}}</el-button>
+        </el-form-item>
+        <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
+          <el-input v-model="revisionform.email" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" :label-width="formLabelWidth" prop="mobile">
+          <el-input v-model="revisionform.mobile" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRevision = false">取 消</el-button>
+        <el-button type="primary" @click="revisionUserConfirm('revisonform')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -82,6 +112,7 @@ export default {
       currentpage: 1,
       keywords: "",
       dialogFormVisible: false,
+      dialogFormVisibleRevision: false,
       form: {
         username: "",
         password: "",
@@ -91,23 +122,54 @@ export default {
       formLabelWidth: "120px",
       rules: {
         username: [
-          { required: true, message: "请输入用户名称", trigger: "blur" },
+          {
+            required: true,
+            message: "请输入用户名",
+            trigger: "blur"
+          },
           {
             min: 5,
             max: 12,
-            message: "长度在 5 到 12 个字符",
+            message: "用户名长度在 5 到 12 个字符",
             trigger: "change"
           }
         ],
         password: [
-          { required: true, message: "请输入用户密码", trigger: "blur" },
+          {
+            required: true,
+            message: "请输入密码",
+            trigger: "blur"
+          },
           {
             min: 6,
             max: 18,
-            message: "长度在 6 到 18 个字符",
+            message: "密码长度在 6 到 18 个字符",
             trigger: "change"
           }
         ],
+        email: [
+          {
+            type: "email",
+            message: "请输入正确的邮箱地址",
+            trigger: ["blur", "change"]
+          }
+        ],
+        mobile: [
+          {
+            pattern: /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/,
+            message: "请输入正确的手机号码",
+            trigger: "change"
+          }
+        ]
+      },
+      revisionform: {
+        id: 0,
+        email: "",
+        mobile: "",
+        username: ""
+      },
+      formLabelWidth: "120px",
+      revisionrules: {
         email: [
           {
             type: "email",
@@ -172,7 +234,7 @@ export default {
     },
     async del(id) {
       try {
-        await this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+        await this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -228,6 +290,10 @@ export default {
             type: "success",
             duration: 1000
           });
+          this.form.username = "";
+          this.form.password = "";
+          this.form.email = "";
+          this.form.mobile = "";
           this.getUserList();
           this.dialogFormVisible = false;
         } else {
@@ -239,6 +305,52 @@ export default {
         }
       } catch (err) {
         console.log("校验失败/发送ajax失败");
+      }
+    },
+    async revision(id) {
+      this.dialogFormVisibleRevision = true;
+      let {
+        data: { data, meta }
+      } = await this.$http({
+        url: `users/${id}`
+      });
+      this.revisionform.email = data.email;
+      this.revisionform.mobile = data.mobile;
+      this.revisionform.username = data.username;
+      this.revisionform.id = data.id;
+    },
+    async revisionUserConfirm(formName) {
+      try {
+        await this.$refs[formName].validate();
+        console.log("校验成功");
+        let {
+          data: { data, meta }
+        } = await this.$http({
+          url: `users/${this.revisionform.id}`,
+          method: "put",
+          data: this.revisionform
+        });
+        console.log(data, meta);
+
+        if (meta.status == 200) {
+          this.$message({
+            message: meta.msg,
+            type: "success",
+            duration: 1000
+          });
+          this.revisionform.email = "";
+          this.revisionform.mobile = "";
+          this.getUserList();
+          this.dialogFormVisibleRevision = false;
+        } else {
+          this.$message({
+            message: meta.msg,
+            type: "error",
+            duration: 1000
+          });
+        }
+      } catch (err) {
+        console.log("校验失败/发送ajax请求失败");
       }
     }
   },
