@@ -26,16 +26,16 @@ export default new Router({
         {
           path: "/user",
           component: User,
+        },
+        {
+          path: "/rights",
+          component: Rights
+        },
+        {
+          path: "/roles",
+          component: Roles
         }
       ]
-    },
-    {
-      path: "/rights",
-      component: Rights
-    },
-    {
-      path: "/roles",
-      component: Roles
     }
   ]
 })
