@@ -47,7 +47,13 @@
               @click="revision(row.id)"
             ></el-button>
             <el-button type="danger" plain size="mini" icon="el-icon-delete" @click="del(row.id)"></el-button>
-            <el-button type="success" plain size="mini" icon="el-icon-check">分配角色</el-button>
+            <el-button
+              type="success"
+              plain
+              size="mini"
+              icon="el-icon-check"
+              @click="assignRoleDialogShow(row)"
+            >分配角色</el-button>
           </el-row>
         </template>
       </el-table-column>
@@ -84,7 +90,7 @@
     <!-- 修改用户的模态框 -->
     <el-dialog title="修改用户" :visible.sync="dialogFormVisibleRevision">
       <el-form :model="revisionform" ref="revisonform" :rules="revisionrules">
-        <el-form-item label="用户名" :label-width="formLabelWidth" prop="email">
+        <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
           <el-button type="info" plain disabled size="small">{{revisionform.username}}</el-button>
         </el-form-item>
         <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
@@ -99,6 +105,29 @@
         <el-button type="primary" @click="revisionUserConfirm('revisonform')">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 分配角色的模态框 -->
+    <el-dialog title="分配角色" :visible.sync="assignRoleDialog">
+      <el-form :model="assignform" ref="assignform">
+        <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
+          <el-button type="info" plain disabled size="small">{{assignform.username}}</el-button>
+        </el-form-item>
+        <el-form-item label="角色" :label-width="formLabelWidth">
+          <!-- <el-select v-model="assignform.rid" placeholder="请选择"> -->
+          <el-select v-model="value" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="assignRoleDialog = false">取 消</el-button>
+        <el-button type="primary" @click="assignRoleConfirm()">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,6 +140,7 @@ export default {
       pagesize: 3,
       currentpage: 1,
       keywords: "",
+      assignRoleDialog: false,
       dialogFormVisible: false,
       dialogFormVisibleRevision: false,
       form: {
@@ -168,6 +198,13 @@ export default {
         mobile: "",
         username: ""
       },
+      assignform: {
+        rid: 0,
+        id: 0,
+        username: ""
+      },
+      value: "",
+      options: [],
       formLabelWidth: "120px",
       revisionrules: {
         email: [
@@ -352,6 +389,45 @@ export default {
       } catch (err) {
         console.log("校验失败/发送ajax请求失败");
       }
+    },
+    async assignRoleConfirm() {
+      try {
+        let {
+          data: { data, meta }
+        } = await this.$http({
+          url: `users/${this.assignform.id}/role`,
+          method: "put",
+          data: {
+            rid: this.assignform.rid
+          }
+        });
+        console.log(data, meta, 7777777777);
+        this.$message({
+          type: "success",
+          message: meta.msg,
+          duration: 1000
+        });
+        this.assignRoleDialog = false;
+      } catch (err) {}
+    },
+    async assignRoleDialogShow(row) {
+      try {
+        this.assignRoleDialog = true;
+        let {
+          data: { data, meta }
+        } = await this.$http({
+          url: `users/${row.id}`
+        });
+        console.log(data, meta, 99999999999);
+
+        this.assignform = data;
+        let res = await this.$http({
+          url: "roles"
+        });
+        console.log(res.data.data, 6666666666666666666666666666666);
+
+        this.options = res.data.data;
+      } catch (err) {}
     }
   },
   created() {
