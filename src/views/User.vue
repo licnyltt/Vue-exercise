@@ -327,10 +327,11 @@ export default {
             type: "success",
             duration: 1000
           });
-          this.form.username = "";
-          this.form.password = "";
-          this.form.email = "";
-          this.form.mobile = "";
+          // this.form.username = "";
+          // this.form.password = "";
+          // this.form.email = "";
+          // this.form.mobile = "";
+          this.$refs[formName].resetFields();
           this.getUserList();
           this.dialogFormVisible = false;
         } else {
