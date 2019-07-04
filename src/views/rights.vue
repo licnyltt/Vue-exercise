@@ -6,7 +6,7 @@
       <el-breadcrumb-item>角色列表</el-breadcrumb-item>
     </el-breadcrumb>
 
-    <el-table :data="getRoleListData" stripe style="width: 100%" ref="roleTable">
+    <el-table ref="roleTable" :data="getRoleListData" stripe style="width: 100%">
       <el-table-column type="expand">
         <template v-slot="{row}">
           <el-form label-position="left" inline class="demo-table-expand">
@@ -63,12 +63,20 @@
     </el-table>
     <!-- 分配权限的模态框 -->
     <el-dialog title="角色授权" :visible.sync="roleAssignRightsDialog">
-      <el-tree
+      <!-- <el-tree
         ref="rightsTree"
         :data="roleAssignRightsData"
         show-checkbox
         node-key="id"
         :default-checked-keys="checkedRights"
+        :props="defaultProps"
+        default-expand-all
+      ></el-tree>-->
+      <el-tree
+        ref="rightsTree"
+        :data="roleAssignRightsData"
+        show-checkbox
+        node-key="id"
         :props="defaultProps"
         default-expand-all
       ></el-tree>
@@ -84,7 +92,7 @@ export default {
   data() {
     return {
       // arr: [],
-      checkedRights: [],
+      // checkedRights: [],
       roleAssignRightsDialog: false,
       currentEditRoleId: -1,
       getRoleListData: [],
@@ -96,7 +104,7 @@ export default {
     };
   },
   methods: {
-    async getRoleList() {
+    async getRoleList(t = () => {}) {
       try {
         let {
           data: { data, meta }
@@ -106,6 +114,7 @@ export default {
         console.log(data, meta);
         if (meta.status == 200) {
           this.getRoleListData = data;
+          t();
         }
       } catch (err) {}
     },
@@ -131,17 +140,21 @@ export default {
             });
           });
         });
-        this.checkedRights = [...level1Ids, ...level2Ids, ...level3Ids];
+        // this.checkedRights = [...level1Ids, ...level2Ids, ...level3Ids];
+        this.$refs.rightsTree.setCheckedKeys(level3Ids);
       } catch (err) {}
     },
     async addRightsConfirm() {
+      console.log(999999);
+
       try {
-        this.$refs.rightsTree.getCheckedKeys();
         let rids = [
           //有bug
           ...this.$refs.rightsTree.getCheckedKeys(),
           ...this.$refs.rightsTree.getHalfCheckedKeys()
         ].join(",");
+        console.log("rids = ", rids);
+
         // let rids = this.arr.join();
         let {
           data: { data, meta }
@@ -189,22 +202,48 @@ export default {
         });
         console.log(data, meta, 111111111111111111);
 
-        if (meta.status == 200) {
-          this.$message({
-            type: "success",
-            message: meta.msg,
-            duration: 1000
+        // if (meta.status == 200) {
+        this.$message({
+          type: "success",
+          message: meta.msg,
+          duration: 1000
+        });
+        // try {
+        //   let {
+        //     data: { data, meta }
+        //   } = await this.$http({
+        //     url: "roles"
+        //   });
+        //   console.log(data, meta);
+
+        //   if (meta.status == 200) {
+        //     this.getRoleListData = data;
+        //     t();
+        //   }
+
+        // } catch (err) {}
+        this.getRoleList(() => {
+          console.log(111);
+
+          this.$nextTick(() => {
+            console.log(22);
+
+            this.$refs.roleTable.toggleRowExpansion(
+              this.getRoleListData.find(v => v.id == row.id),
+              true
+            );
           });
-          this.getRoleList();
-          // this.getRoleList(() => {
-          //   this.$nextTick(() => {
-          //     this.$refs.roleTable.toggleRowExpansion(
-          //       this.getRoleListData.find(v => v.id == row.id),
-          //       true
-          //     );
-          //   });
-          // });
-        }
+        });
+
+        // this.getRoleList(() => {
+        //   this.$nextTick(() => {
+        //     this.$refs.roleTable.toggleRowExpansion(
+        //       this.getRoleListData.find(v => v.id === row.id),
+        //       true
+        //     );
+        //   });
+        // });
+        // }
       } catch (err) {}
     }
   },

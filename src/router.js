@@ -17,14 +17,14 @@ export default new Router({
     },
     {
       path: "/",
-      redirect: Home
+      redirect: '/home'
     },
     {
       path: "/home",
       component: Home,
       children: [
         {
-          path: "/user",
+          path: "/users",
           component: User,
         },
         {
