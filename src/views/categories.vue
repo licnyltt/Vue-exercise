@@ -34,9 +34,10 @@
     ></el-pagination>
 
     <!-- 添加分类模态框 -->
-    <el-dialog title="添加分类" :visible.sync="addCategoryDialog">
+    <el-dialog title="添加分类" :visible.sync="addCategoryDialog" @close="$refs.refresh.resetFields()">
+      <!-- @close="$refs.refresh.resetFields()" -->
       <el-form ref="refresh" :model="addCategoryParams">
-        <el-form-item label="分类名称" :label-width="formLabelWidth">
+        <el-form-item label="分类名称" :label-width="formLabelWidth" prop="cat_name">
           <el-input v-model="addCategoryParams.cat_name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="父级名称" :label-width="formLabelWidth">
@@ -50,7 +51,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="addCategoryDialog = false">取 消</el-button>
-        <el-button type="primary" @click="addCategoryConfirm">确 定</el-button>
+        <el-button type="primary" @click="addCategoryConfirm()">确 定</el-button>
       </div>
     </el-dialog>
   </div>

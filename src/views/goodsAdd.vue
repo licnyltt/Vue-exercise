@@ -10,7 +10,7 @@
       <el-step title="第二步" description="商品图片"></el-step>
       <el-step title="第三步" description="商品内容"></el-step>
     </el-steps>
-    <el-tabs :value="activeName" tab-position="left" @tab-click="replace">
+    <el-tabs v-model="activeName" tab-position="left" @tab-click="replace">
       <el-tab-pane label="基本信息" name="base">
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item label="商品名称">
@@ -84,7 +84,7 @@ export default {
         goods_price: "",
         goods_number: "",
         goods_weight: "",
-        is_promote: "",
+        is_promote: "0",
         cat_Arr: [],
         pics: [],
         goods_introduce: ""
@@ -158,4 +158,10 @@ export default {
   margin-bottom: 20px;
 }
 </style>
+<style>
+.ql-container.ql-snow {
+  height: 200px;
+}
+</style>
+
 
