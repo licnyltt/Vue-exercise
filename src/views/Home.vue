@@ -6,7 +6,7 @@
           <img src="../assets/logo.png" alt />
         </el-col>
         <el-col>
-          <h1>后台管理系统</h1>
+          <h1 class="mar">后台管理系统</h1>
         </el-col>
         <el-col :span="6" class="header-right">
           <span>欢迎39期星耀会员</span>
@@ -116,6 +116,9 @@ export default {
 
 .el-aside ul {
   height: 100%;
+}
+.mar {
+  margin: 0;
 }
 </style>
 
